@@ -1,5 +1,21 @@
 💬 Realtime Chat App (MERN Stack)
 
+📝 What is a Chat App?
+
+A chat application allows users to exchange messages instantly over the internet. Unlike traditional messaging (SMS), it:
+
+Works in real-time (messages are delivered instantly).
+
+Supports multiple users online at the same time.
+
+Keeps track of user authentication and authorization.
+
+Shows whether users are online/offline.
+
+Stores messages securely in a database for future access.
+
+
+
 
 🚀 Features
 
