@@ -7,17 +7,17 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
-import Setting from './pages/Setting';
 import Signup from './pages/Signup';
 import { useAuthStore } from './store/useAuth.store';
-import { useThemeStore } from "./store/useTheme.store";
 import { Toaster } from "react-hot-toast";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
-  const { theme } = useThemeStore();
+
 
   console.log({ onlineUsers });
+
+  
 
  useEffect(() => {
    checkAuth();
@@ -33,37 +33,41 @@ function App() {
 //  )
 
 
-
   return (
     <>
-      <div data-theme={theme}>
+     
+      <div className="bg-white dark:bg-gray-900 min-h-screen transition-colors">
       <Navbar/>
-       <Routes>
-      <Route path="/" element={ <Home/> }></Route>
-      <Route path="/signup" element={<Signup/> }></Route>
-      <Route path="/login" element={ <Login/> }></Route>
-      <Route path="/settings" element={<Setting/>}></Route>
-      <Route path="/profile" element={ <Profile/> }></Route>
+      
+
+     <Routes>
+       <Route path="/" element={ <Home/> }></Route>
+   <Route path="/signup" element={!authUser ? <Signup/> : <Navigate to="/login" />} />
+<Route path="/login" element={!authUser ? <Login/> : <Navigate to="/" />} />
+       {/* <Route path="/login" element={authUser  ? <Login/> : <Navigate to="/" />}></Route> */}
+     
+       
+<Route path="/profile" element={ <Profile/> }></Route>
+       {/* <Route path="/profile" element={authUser  ? <Profile/> : <Navigate to="/login" />}></Route> */}
 
      </Routes>
+        <Toaster />
 
-     
-      <Toaster />
-
-
-      
-     {/* <Routes>
-      <Route path="/" element={authUser  ? <Home/> : <Navigate to="/login" />}></Route>
-      <Route path="/signup" element={authUser  ? <Signup/> : <Navigate to="/" />}></Route>
-      <Route path="/login" element={authUser  ? <Login/> : <Navigate to="/" />}></Route>
-      <Route path="/setting" element={<Setting/>}></Route>
-      <Route path="/profile" element={authUser  ? <Profile/> : <Navigate to="/login" />}></Route>
-
-     </Routes> */}
      </div>
-       
+          
     </>
   )
 }
 
 export default App
+
+
+
+    // <Routes>
+    //   <Route path="/" element={ <Home/> }></Route>
+    //   {/* <Route path="/signup" element={<Signup/> }></Route> */}
+    //   <Route path="/login" element={ <Login/> }></Route>
+   
+    //   <Route path="/profile" element={ <Profile/> }></Route>
+
+    //  </Routes>
