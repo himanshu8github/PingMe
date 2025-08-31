@@ -28,6 +28,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  //function to create a new account
   signup: async (data) => {
     set({ isSigningUp: true });
     try {

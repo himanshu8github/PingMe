@@ -3,7 +3,8 @@ import { useAuthStore } from "../store/useAuth.store.js";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
-// import AuthImagePattern from "../components/AuthImagePattern";
+import AuthFeatures from "../components/AuthFeatures";
+
 import toast from "react-hot-toast";
 
 const SignUpPage = () => {
@@ -39,7 +40,7 @@ const SignUpPage = () => {
       {/* left side */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-12">
         <div className="w-full max-w-md space-y-8">
-          {/* LOGO */}
+          {/* logo*/}
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
               <div
@@ -48,6 +49,7 @@ const SignUpPage = () => {
               >
                 <MessageSquare className="size-6 text-primary" />
               </div>
+               {/* form */}
               <h1 className="text-2xl font-bold mt-2">Create Account</h1>
               <p className="text-base-content/60">Get started with your free account</p>
             </div>
@@ -143,12 +145,26 @@ const SignUpPage = () => {
       </div>
 
       {/* right side */}
-{/* 
-      <AuthImagePattern
-        title="Join our community"
-        subtitle="Connect with friends, share moments, and stay in touch with your loved ones."
-      /> */}
-    </div>
+
+{/* Mobile (stacked, smaller padding) */}
+<div className="flex lg:hidden items-center justify-center bg-base-120 p-6">
+  <div className="space-y-4 text-center">
+    <h2 className="text-xl font-bold">Why Join Us?</h2>
+    <p className="text-base-content/60 text-sm">
+      🚀 Real-time chat, secure messaging & a growing community.
+    </p>
+  </div>
+</div>
+
+{/* Desktop (full AuthFeatures) */}
+<div className="hidden lg:flex items-center justify-center bg-base-120 p-12">
+  <AuthFeatures />
+</div>
+
+</div>
+
+
+ 
   );
 };
 export default SignUpPage;
