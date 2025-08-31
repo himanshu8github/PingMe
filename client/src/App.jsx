@@ -4,6 +4,7 @@ import './App.css'
 import {Loader} from 'lucide-react'
 
 import Navbar from './components/Navbar';
+import LandingPage from "./pages/Landing";
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
@@ -14,10 +15,6 @@ import { Toaster } from "react-hot-toast";
 function App() {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
 
-
-  console.log({ onlineUsers });
-
-  
 
  useEffect(() => {
    checkAuth();
@@ -41,9 +38,13 @@ function App() {
       
 
      <Routes>
-       <Route path="/" element={ <Home/> }></Route>
+         <Route
+          path="/home"
+          element={ <LandingPage />}
+        />
+       <Route path="/chat" element={ <Home/> }></Route>
    <Route path="/signup" element={!authUser ? <Signup/> : <Navigate to="/login" />} />
-<Route path="/login" element={!authUser ? <Login/> : <Navigate to="/" />} />
+<Route path="/login" element={!authUser ? <Login/> : <Navigate to="/chat" />} />
        {/* <Route path="/login" element={authUser  ? <Login/> : <Navigate to="/" />}></Route> */}
      
        

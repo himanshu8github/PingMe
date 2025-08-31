@@ -1,11 +1,12 @@
 import User from "../models/user.model.js";
 import Message from '../models/message.model.js'
+import cloudinary from '../lib/cloudinary.js'
 
 export const getUsersForSidebar = async (req, res) => {
 
 
     try{
-        const loggedInUserId = req.user_id;
+        const loggedInUserId = req.user._id;
         const filteredUsers =  await User.find({_id:{$ne : loggedInUserId}}).select("-password"); 
 
         res.status(200).json(filteredUsers);
@@ -20,14 +21,14 @@ export const getMessages =  async (req, res) => {
 
     try {
         const {id:userToChatId} =  req.params;
-        const myId = req.user._Id;
+        const myId = req.user._id;
 
         const messages = await Message.find({
             $or :[
-                 {senderId : myId, recieverId: userToChatId},
-                {senderId: userToChatId, recieverId:myId}
+                 {senderId : myId, receiverId: userToChatId},
+                {senderId: userToChatId, receiverId:myId}
             ]
-        });
+        }).sort({ createdAt: 1 }); 
 
         res.status(200).json(messages);
 
@@ -42,7 +43,7 @@ export const sendMessage =  async (req, res) =>{
 
     try {
         const {text, image} = req.body;
-        const {id : recieverId} = req.params;
+        const {id : receiverId} = req.params;
         const senderId = req.user._id;
 
         let imageUrl;
@@ -55,7 +56,7 @@ export const sendMessage =  async (req, res) =>{
         //create msg
         const newMessage = new Message({
             senderId,
-            recieverId,
+            receiverId,
             text,
             image: imageUrl,
         });

@@ -3,13 +3,13 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
     senderId : {
             type : mongoose.Schema.Types.ObjectId,
-            ref : "user",
+            ref : "User",
             required: true,
 
         },
-        recieverId:{
+        receiverId:{
              type : mongoose.Schema.Types.ObjectId,
-            ref : "user",
+            ref : "User",
             required: true,
         },
         text:{

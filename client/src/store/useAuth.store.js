@@ -70,6 +70,8 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: null });
       toast.success("Logged out successfully");
       get().disconnectSocket();
+      set({ socket: null });
+
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -98,17 +100,20 @@ export const useAuthStore = create((set, get) => ({
     const socket = io(BASE_URL, {
       query: {
         userId: authUser._id,
+          withCredentials: true,
       },
     });
-    socket.connect();
 
-    set({ socket: socket });
+    set({ socket });
 
+    socket.off("getOnlineUsers");
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
   },
+
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
   },
+
 }));
