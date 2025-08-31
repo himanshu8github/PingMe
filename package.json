@@ -1,0 +1,13 @@
+{
+  "name": "pingme",
+  "version": "1.0.0",
+  "description": "💬 Realtime Chat App (MERN Stack)",
+  "main": "index.js",
+  "scripts": {
+    "build" : "",
+    "start" : ""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
