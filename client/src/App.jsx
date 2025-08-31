@@ -37,21 +37,17 @@ function App() {
       <Navbar/>
       
 
-     <Routes>
-         <Route
-          path="/home"
-          element={ <LandingPage />}
-        />
-       <Route path="/chat" element={ <Home/> }></Route>
-   <Route path="/signup" element={!authUser ? <Signup/> : <Navigate to="/login" />} />
-<Route path="/login" element={!authUser ? <Login/> : <Navigate to="/chat" />} />
-       {/* <Route path="/login" element={authUser  ? <Login/> : <Navigate to="/" />}></Route> */}
-     
-       
-<Route path="/profile" element={ <Profile/> }></Route>
-       {/* <Route path="/profile" element={authUser  ? <Profile/> : <Navigate to="/login" />}></Route> */}
+   <Routes>
+ 
+  <Route path="/" element={<Navigate to="/home" />} />
 
-     </Routes>
+  <Route path="/home" element={<LandingPage />} />
+  <Route path="/chat" element={<Home />} />
+  <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to="/login" />} />
+  <Route path="/login" element={!authUser ? <Login /> : <Navigate to="/chat" />} />
+  <Route path="/profile" element={<Profile />} />
+</Routes>
+
         <Toaster />
 
      </div>
