@@ -76,13 +76,20 @@ export const login = async (req, res) => {
             return res.status(400).json({message : "Invalid credentials"});
         }
 
-        generateToken(user._id, res);
+
+        try {
+ generateToken(user._id, res);
         res.status(200).json({
             _id : user._id,
             email : user.email,
             fullName : user.fullName,
             profilePic : user.profilePic
         })
+} catch (err) {
+  console.error("JWT generation failed:", err.message);
+  return res.status(500).json({ message: "JWT generation failed" });
+}
+        
     }catch(error){
         console.log("Error in login controller", error.message);
         res.status(500).json({message : "Internal server error"});
