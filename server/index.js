@@ -14,7 +14,7 @@ import { app, server } from "./lib/socket.js";
 import { connectDB } from './lib/db.js';
 
 
-// console.log("Cloudinary config in controller:", cloudinary.config());
+
 
 // const app = express();
 

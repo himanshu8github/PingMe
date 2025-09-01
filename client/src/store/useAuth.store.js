@@ -8,7 +8,6 @@ const BASE_URL =
     ? "http://localhost:5200"
     : "https://pingme-k7l6.onrender.com";
 
-
 export const useAuthStore = create((set, get) => ({
   authUser: null,
   isSigningUp: false,
@@ -18,16 +17,14 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
   socket: null,
 
+  // Check auth on page load
   checkAuth: async () => {
     try {
-        const token = localStorage.getItem("token");
-        const res = await axiosInstance.get("/auth/check", {
-           headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
+      const res = await axiosInstance.get("/auth/check", {
+        withCredentials: true, // sends cookie
       });
 
-      localStorage.setItem("token", res.data.token); // update token 
-    set({ authUser: res.data.user });
+      set({ authUser: res.data.user });
       get().connectSocket();
     } catch (error) {
       console.log("Error in checkAuth:", error);
@@ -37,85 +34,80 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  //function to create a new account
+  // Signup
   signup: async (data) => {
     set({ isSigningUp: true });
     try {
-     const res = await axiosInstance.post("/auth/signup", data, {
-        withCredentials: true,
+      const res = await axiosInstance.post("/auth/signup", data, {
+        withCredentials: true, // sets cookie
       });
-      localStorage.setItem("token", res.data.token);
       set({ authUser: res.data.user });
       toast.success("Account created successfully");
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Signup failed");
     } finally {
       set({ isSigningUp: false });
     }
   },
 
+  // Login
   login: async (data) => {
     set({ isLoggingIn: true });
     try {
-       const res = await axiosInstance.post("/auth/login", data, {
-        withCredentials: true,
+      const res = await axiosInstance.post("/auth/login", data, {
+        withCredentials: true, // sets cookie
       });
-      localStorage.setItem("token", res.data.token);
       set({ authUser: res.data.user });
       toast.success("Logged in successfully");
-
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       set({ isLoggingIn: false });
     }
   },
 
+  // Logout
   logout: async () => {
     try {
-        await axiosInstance.post("/auth/logout", {}, {
-           withCredentials: true
-           });
-           localStorage.removeItem("token");
+      await axiosInstance.post("/auth/logout", {}, {
+        withCredentials: true, // clears cookie
+      });
       set({ authUser: null });
       toast.success("Logged out successfully");
       get().disconnectSocket();
       set({ socket: null });
-
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Logout failed");
     }
   },
 
+  // Update profile
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
       const res = await axiosInstance.put("/auth/update-profile", data, {
-      withCredentials: true,
-    });
-      set({ authUser: res.data });
+        withCredentials: true,
+      });
+      set({ authUser: res.data.user });
       toast.success("Profile updated successfully");
     } catch (error) {
       console.log("error in update profile:", error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Update failed");
     } finally {
       set({ isUpdatingProfile: false });
     }
   },
 
+  // Socket.io
   connectSocket: () => {
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
 
     const socket = io(BASE_URL, {
-        auth: { token: localStorage.getItem("token") },
-      query: {
-        userId: authUser._id
-         
-      } ,
-      withCredentials: true,
+      query: { userId: authUser._id }, // optional, for server tracking
+      withCredentials: true,          // sends cookies
     });
 
     set({ socket });
@@ -129,5 +121,4 @@ export const useAuthStore = create((set, get) => ({
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
   },
-
 }));
