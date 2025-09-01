@@ -13,7 +13,13 @@ export const useChatStore = create((set, get) => ({
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
-      const res = await axiosInstance.get("/message/users");
+      const { authUser } = useAuthStore.getState();
+     const token = authUser?.token || localStorage.getItem("token");
+
+      const res = await axiosInstance.get("/message/users",{ 
+          headers: { Authorization: `Bearer ${token}` },
+           withCredentials: true 
+    });
       set({ users: res.data });
     } catch (error) {
       toast.error(error.response.data.message);
@@ -25,7 +31,13 @@ export const useChatStore = create((set, get) => ({
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
-      const res = await axiosInstance.get(`/message/${userId}`);
+      const { authUser } = useAuthStore.getState();
+const token = authUser?.token || localStorage.getItem("token");
+
+const res = await axiosInstance.get(`/message/${userId}`, {
+  headers: { Authorization: `Bearer ${token}` },
+  withCredentials: true
+});
       set({ messages: res.data });
     } catch (error) {
       toast.error(error.response.data.message);
@@ -36,19 +48,27 @@ export const useChatStore = create((set, get) => ({
   
   sendMessage: async (messageData) => {
     const { selectedUser } = get();
-      const { authUser, socket } = useAuthStore.getState();
       
     try {
-      await axiosInstance.post(`/message/send/${selectedUser._id}`, messageData);
+     const { authUser, socket } = useAuthStore.getState();
+const token = authUser?.token || localStorage.getItem("token");
+
+await axiosInstance.post(`/message/send/${selectedUser._id}`, messageData, {
+  headers: { Authorization: `Bearer ${token}` },
+  withCredentials: true
+});
+
+// then emit realtime
+if (socket?.connected) {
+  socket.emit("sendMessage", {
+    senderId: authUser._id,
+    receiverId: selectedUser._id,
+    text: messageData.text,
+  });
+}
+
       
-        // Emit realtime
-        if (socket?.connected) {
-    socket.emit("sendMessage", {
-      senderId: authUser._id,
-      receiverId: selectedUser._id,
-      text: messageData.text,
-    });
-  }
+   
     } catch (error) {
       toast.error(error.response.data.message);
     }

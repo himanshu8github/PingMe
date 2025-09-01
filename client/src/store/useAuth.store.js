@@ -20,11 +20,14 @@ export const useAuthStore = create((set, get) => ({
 
   checkAuth: async () => {
     try {
+        const token = localStorage.getItem("token");
         const res = await axiosInstance.get("/auth/check", {
+           headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
 
-      set({ authUser: res.data });
+      localStorage.setItem("token", res.data.token); // update token 
+    set({ authUser: res.data.user });
       get().connectSocket();
     } catch (error) {
       console.log("Error in checkAuth:", error);
@@ -41,7 +44,8 @@ export const useAuthStore = create((set, get) => ({
      const res = await axiosInstance.post("/auth/signup", data, {
         withCredentials: true,
       });
-      set({ authUser: res.data });
+      localStorage.setItem("token", res.data.token);
+      set({ authUser: res.data.user });
       toast.success("Account created successfully");
       get().connectSocket();
     } catch (error) {
@@ -57,7 +61,8 @@ export const useAuthStore = create((set, get) => ({
        const res = await axiosInstance.post("/auth/login", data, {
         withCredentials: true,
       });
-      set({ authUser: res.data });
+      localStorage.setItem("token", res.data.token);
+      set({ authUser: res.data.user });
       toast.success("Logged in successfully");
 
       get().connectSocket();
@@ -73,6 +78,7 @@ export const useAuthStore = create((set, get) => ({
         await axiosInstance.post("/auth/logout", {}, {
            withCredentials: true
            });
+           localStorage.removeItem("token");
       set({ authUser: null });
       toast.success("Logged out successfully");
       get().disconnectSocket();
@@ -104,10 +110,12 @@ export const useAuthStore = create((set, get) => ({
     if (!authUser || get().socket?.connected) return;
 
     const socket = io(BASE_URL, {
+        auth: { token: localStorage.getItem("token") },
       query: {
-        userId: authUser._id,
-          withCredentials: true,
-      },
+        userId: authUser._id
+         
+      } ,
+      withCredentials: true,
     });
 
     set({ socket });
