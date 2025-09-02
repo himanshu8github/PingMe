@@ -20,26 +20,28 @@ const ChatContainer = () => {
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
-  useEffect(() => {
-       if (!selectedUser?._id) return;  // exit if no user is selected
-    getMessages(selectedUser._id);
+  // Safely get messages for the selected user
+  const thread = selectedUser ? messages[selectedUser._id] || [] : [];
 
+  // Fetch messages & subscribe when selected user changes
+  useEffect(() => {
+    if (!selectedUser?._id) return;
+
+    getMessages(selectedUser._id);
     subscribeToMessages();
 
     return () => unsubscribeFromMessages();
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
-
-
+  // Scroll to bottom when thread updates
   useEffect(() => {
-    if (messageEndRef.current && messages) {
+    if (messageEndRef.current && thread.length > 0) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [thread]);
 
-
-
-  if (isMessagesLoading) {
+  // Show skeleton while loading
+  if (!authUser || !selectedUser || isMessagesLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
@@ -54,13 +56,15 @@ const ChatContainer = () => {
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
+        {thread.map((message) => (
           <div
             key={message._id || `${message.senderId}-${message.createdAt}`}
-            className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
+            className={`chat ${
+              message.senderId === authUser._id ? "chat-end" : "chat-start"
+            }`}
             ref={messageEndRef}
           >
-            <div className=" chat-image avatar">
+            <div className="chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
                   src={
@@ -72,11 +76,13 @@ const ChatContainer = () => {
                 />
               </div>
             </div>
+
             <div className="chat-header mb-1">
               <time className="text-xs opacity-50 ml-1">
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
+
             <div className="chat-bubble flex flex-col">
               {message.image && (
                 <img
@@ -95,4 +101,5 @@ const ChatContainer = () => {
     </div>
   );
 };
+
 export default ChatContainer;

@@ -36,9 +36,12 @@ app.use(cors({
 app.use('/api/auth', authRoutes);
 app.use('/api/message', messageRoutes);
 
-
+app.use((err, req, res, next) => {
+  console.error(" Error:", err.stack);
+  res.status(500).json({ message: "Something broke!" });
+});
 
 server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    connectDB();
-})
+  console.log(` Server running on port ${PORT}`);
+  connectDB();
+});

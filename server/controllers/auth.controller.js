@@ -1,7 +1,10 @@
 import bcrypt from 'bcryptjs';
+import jwt from "jsonwebtoken";
+
 import User from '../models/user.model.js'
 import { generateToken } from '../lib/utils.js'
 import cloudinary from '../lib/cloudinary.js';
+
 
 
 export const signup = async (req, res) => {
@@ -33,8 +36,9 @@ export const signup = async (req, res) => {
 
     if(newUser){
         // generate jwt here
+          await newUser.save();
          generateToken(newUser._id, res);
-         await newUser.save();
+       
 
          res.status(201).json({
             _id : newUser._id,
@@ -139,7 +143,7 @@ export const checkAuth = (req, res) => {
     if (!req.user) {
       return res.status(401).json({ message: "Not authenticated" });
     }
-    res.status(200).json(req.user); // send logged-in user info
+    res.status(200).json({user: req.user}); // send logged-in user info
   } catch (error) {
     console.error("Error in checkAuth:", error.message);
     res.status(500).json({ message: "Internal Server Error" });

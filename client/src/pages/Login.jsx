@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuth.store.js";
 import AuthHighlights from "../components/AuthHighlightLogin";
-import { Link } from "react-router-dom";
+import { Link , useNavigate} from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
 
 const LoginPage = () => {
@@ -10,12 +10,28 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
-  const { login, isLoggingIn } = useAuthStore();
+  const { login, isLoggingIn, authUser } = useAuthStore();
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+
+ const handleSubmit = async (e) => {
     e.preventDefault();
-    login(formData);
+      const { email, password } = formData;
+    try {
+      await login({ email, password });
+     
+          if (authUser || true) {
+      navigate("/chat");
+    }
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+//   useEffect(() => {
+//   if (authUser) navigate("/chat");
+// }, [authUser, navigate]);
+
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">

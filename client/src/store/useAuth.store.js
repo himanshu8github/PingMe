@@ -21,9 +21,8 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check", {
-        withCredentials: true, // sends cookie
+        withCredentials: true,
       });
-
       set({ authUser: res.data.user });
       get().connectSocket();
     } catch (error) {
@@ -39,7 +38,7 @@ export const useAuthStore = create((set, get) => ({
     set({ isSigningUp: true });
     try {
       const res = await axiosInstance.post("/auth/signup", data, {
-        withCredentials: true, // sets cookie
+        withCredentials: true,
       });
       set({ authUser: res.data.user });
       toast.success("Account created successfully");
@@ -56,12 +55,14 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/login", data, {
-        withCredentials: true, // sets cookie
+        withCredentials: true,
       });
+      console.log("Login response:", res.data);
       set({ authUser: res.data.user });
       toast.success("Logged in successfully");
       get().connectSocket();
     } catch (error) {
+      console.log("Login error:", error.response?.data || error);
       toast.error(error.response?.data?.message || "Login failed");
     } finally {
       set({ isLoggingIn: false });
@@ -71,13 +72,15 @@ export const useAuthStore = create((set, get) => ({
   // Logout
   logout: async () => {
     try {
-      await axiosInstance.post("/auth/logout", {}, {
-        withCredentials: true, // clears cookie
-      });
-      set({ authUser: null });
+      await axiosInstance.post(
+        "/auth/logout",
+        {},
+        { withCredentials: true }
+      );
+      set({ authUser: null, socket: null, onlineUsers: [] });
+      localStorage.removeItem("auth-storage");
       toast.success("Logged out successfully");
       get().disconnectSocket();
-      set({ socket: null });
     } catch (error) {
       toast.error(error.response?.data?.message || "Logout failed");
     }
@@ -102,23 +105,39 @@ export const useAuthStore = create((set, get) => ({
 
   // Socket.io
   connectSocket: () => {
-    const { authUser } = get();
-    if (!authUser || get().socket?.connected) return;
+    const authUser = get().authUser;
+    if (!authUser) return;
+
+    if (get().socket?.connected) return;
 
     const socket = io(BASE_URL, {
-      query: { userId: authUser._id }, // optional, for server tracking
-      withCredentials: true,          // sends cookies
+      query: { userId: String(authUser._id) }, // ensure string
+      withCredentials: true,
     });
 
     set({ socket });
 
-    socket.off("getOnlineUsers");
-    socket.on("getOnlineUsers", (userIds) => {
-      set({ onlineUsers: userIds });
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+      socket.emit("user-online", String(authUser._id));
+    });
+
+  socket.on("getOnlineUsers", (userIds) => {
+  set({ onlineUsers: userIds.map((id) => String(id)) });
+});
+
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
     });
   },
 
   disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
+    const socket = get().socket;
+    if (socket?.connected) {
+      socket.disconnect();
+      console.log("Socket disconnected");
+    }
+    set({ socket: null, onlineUsers: [] });
   },
 }));
